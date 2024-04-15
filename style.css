@@ -1,0 +1,11 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+#game {
+    display: block;
+    margin: 15px auto;
+}
+
