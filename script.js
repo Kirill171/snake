@@ -8,6 +8,9 @@ ground.src = 'image/backImage.png';
 const foodImg = new Image();
 foodImg.src = 'image/carrot.png';
 
+const restartGame = new Image();
+restartGame.src = 'image/restart.png';
+
 let box = 32;
 let score = 0;
 
@@ -19,15 +22,14 @@ let food = {
 let snake = [];
 snake[0] = {
     x: 9 * box,
-    y: 10 * box,
+    y: 9 * box,
 };
 
 document.addEventListener('keydown', direction);
 
 let dir;
-
 function direction(event) {
-    if(event.keyCode == 37 && dir != 'right') {
+    if (event.keyCode == 37 && dir != 'right') {
         dir = 'left';
     } else if (event.keyCode == 38 && dir != 'down') {
         dir = 'up';
@@ -38,12 +40,37 @@ function direction(event) {
     }
 }
 
-function eatTail (head, arr) {
+function eatTail(head, arr) {
     for (let i = 0; i < arr.length; i++) {
-        if(head.x == arr[i].x && head.y == arr[i].y){
+        if (head.x == arr[i].x && head.y == arr[i].y) {
             clearInterval(game);
+            showGameOver();
+            document.addEventListener('keydown', createNewGame);
         }
     }
+}
+
+function showGameOver() {
+    ctx.fillStyle = 'black';
+    ctx.fillText('Game over', box * 5, box * 10);
+}
+
+function createNewGame(event) {
+    if (event.keyCode == 13 || event.keyCode == 32 || event.keyCode == 82) {
+        newGame();
+    }
+}
+
+function newGame() {
+    score = 0;
+    dir = null;
+    snake = []; // Очистка массива змеи
+    snake[0] = {
+        x: 9 * box,
+        y: 9 * box,
+    };
+    clearInterval(game); // Очистка интервала перед запуском новой игры
+    game = setInterval(drawGame, 100); // Обновление интервала
 }
 
 function drawGame() {
@@ -51,8 +78,33 @@ function drawGame() {
 
     ctx.drawImage(foodImg, food.x, food.y);
 
+    ctx.drawImage(restartGame, 17 * box, 0.7 * box);
+    canvas.addEventListener('click', function(event) {
+        // Получаем координаты клика относительно холста
+        const clickX = event.pageX - canvas.offsetLeft;
+        const clickY = event.pageY - canvas.offsetTop;
+        
+        // Определяем координаты и размеры кнопки restartGame
+        const restartButtonX = 17 * box;
+        const restartButtonY = 0.7 * box;
+        const restartButtonWidth = restartGame.width;
+        const restartButtonHeight = restartGame.height;
+    
+        // Проверяем, был ли клик выполнен в области кнопки restartGame
+        if (
+            clickX >= restartButtonX &&
+            clickX <= restartButtonX + restartButtonWidth &&
+            clickY >= restartButtonY &&
+            clickY <= restartButtonY + restartButtonHeight
+        ) {
+            // Вызываем функцию createNewGame
+            newGame();
+        }
+    });
+    
+
     for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i == 0 ? 'green' : '#24a424'  ;
+        ctx.fillStyle = i == 0 ? 'green' : '#24a424';
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
     }
 
@@ -63,7 +115,7 @@ function drawGame() {
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
-    if(snakeX == food.x && snakeY == food.y) {
+    if (snakeX == food.x && snakeY == food.y) {
         score++;
 
         food = {
@@ -74,9 +126,12 @@ function drawGame() {
         snake.pop();
     }
 
-    if(snakeX < box || snakeX > box * 17
-        || snakeY < 3 * box || snakeY > box * 17)
+    if (snakeX < box || snakeX > box * 17
+        || snakeY < 3 * box || snakeY > box * 17) {
         clearInterval(game);
+        showGameOver();
+        document.addEventListener('keydown', createNewGame);
+    }
 
     if (dir == 'left') snakeX -= box;
     if (dir == 'right') snakeX += box;
