@@ -5,8 +5,11 @@ const ground = new Image();
 ground.src = 'image/backImage.png';
 
 
-const foodImg = new Image();
-foodImg.src = 'image/carrot.png';
+const carrotImg = new Image();
+carrotImg.src = 'image/carrot.png';
+
+const appleImg = new Image();
+appleImg.src = 'image/apple.png';
 
 const restartGame = new Image();
 restartGame.src = 'image/restart.png';
@@ -70,26 +73,31 @@ function newGame() {
         y: 9 * box,
     };
     clearInterval(game); // Очистка интервала перед запуском новой игры
-    game = setInterval(drawGame, 100); // Обновление интервала
+    game = setInterval(drawGame, 130); // Обновление интервала
 }
 
+let isApple = false;
 function drawGame() {
     ctx.drawImage(ground, 0, 0);
 
-    ctx.drawImage(foodImg, food.x, food.y);
+    if (isApple) {
+        ctx.drawImage(appleImg, food.x, food.y);
+    } else {
+        ctx.drawImage(carrotImg, food.x, food.y);
+    }
 
     ctx.drawImage(restartGame, 17 * box, 0.7 * box);
-    canvas.addEventListener('click', function(event) {
+    canvas.addEventListener('click', function (event) {
         // Получаем координаты клика относительно холста
         const clickX = event.pageX - canvas.offsetLeft;
         const clickY = event.pageY - canvas.offsetTop;
-        
+
         // Определяем координаты и размеры кнопки restartGame
         const restartButtonX = 17 * box;
         const restartButtonY = 0.7 * box;
         const restartButtonWidth = restartGame.width;
         const restartButtonHeight = restartGame.height;
-    
+
         // Проверяем, был ли клик выполнен в области кнопки restartGame
         if (
             clickX >= restartButtonX &&
@@ -101,7 +109,7 @@ function drawGame() {
             newGame();
         }
     });
-    
+
 
     for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i == 0 ? 'green' : '#24a424';
@@ -117,11 +125,18 @@ function drawGame() {
 
     if (snakeX == food.x && snakeY == food.y) {
         score++;
-
         food = {
             x: Math.floor(Math.random() * 17 + 1) * box,
             y: Math.floor(Math.random() * 15 + 3) * box,
         };
+
+        if (Math.random() <= 0.3) {
+            ctx.drawImage(appleImg, food.x, food.y);
+            isApple = true;
+        } else {
+            ctx.drawImage(carrotImg, food.x, food.y);
+            isApple = false;
+        }
     } else {
         snake.pop();
     }
@@ -148,4 +163,4 @@ function drawGame() {
     snake.unshift(newHead);
 }
 
-let game = setInterval(drawGame, 100);
+let game = setInterval(drawGame, 130);
